@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Android / Gradle
+android/.gradle/
+android/**/build/
+android/app/.cxx/
+android/captures/
+android/.idea/
+**/*.iml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

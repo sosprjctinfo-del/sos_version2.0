@@ -35,7 +35,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         // Double-check permissions when app comes to foreground
         if (!hasLocationPermissions()) {
