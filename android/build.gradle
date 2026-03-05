@@ -1,0 +1,26 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:9.0.0'
+    }
+}
+
+ext {
+    compileSdkVersion = 34
+    minSdkVersion = 23
+    targetSdkVersion = 34
+    androidxAppCompatVersion = '1.6.1'
+    androidxCoreVersion = '1.10.1'
+    androidxActivityVersion = '1.7.2'
+    androidxFragmentVersion = '1.5.7'
+    androidxEspressoCoreVersion = '3.5.1'
+    cordovaAndroidVersion = '10.1.1'
+}
+
+repositories {
+    google()
+    mavenCentral()
+}

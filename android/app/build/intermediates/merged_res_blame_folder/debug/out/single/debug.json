@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.sosbeacon.pro.app-merged_res-25:/xml_file_paths.xml.flat",
+        "source": "com.sosbeacon.pro.app-main-27:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.sosbeacon.pro.app-merged_res-25:/xml_config.xml.flat",
+        "source": "com.sosbeacon.pro.app-main-27:/xml/config.xml"
+    }
+]
