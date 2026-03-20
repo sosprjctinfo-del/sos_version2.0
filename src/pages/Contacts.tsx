@@ -4,6 +4,7 @@ import { Users, Plus, AlertTriangle } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import ContactList from "@/components/ContactList";
 import { Contact, getContacts, saveContacts } from "@/utils/storage";
+import { setNativeEmergencyPhone } from "@/utils/nativeEmergencyContact";
 
 const MAX_CONTACTS = 1;
 
@@ -17,6 +18,7 @@ const Contacts = () => {
   const persist = (updated: Contact[]) => {
     setContacts(updated);
     saveContacts(updated);
+    void setNativeEmergencyPhone(updated[0]?.phone ?? "");
   };
 
   const handleAdd = (data: Omit<Contact, "id">) => {

@@ -21,17 +21,27 @@ import java.util.ArrayList;
 
 public class MainActivity extends BridgeActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final int SOS_PERMISSION_REQUEST_CODE = 1002;
     private static final String[] LOCATION_PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
+    private static final String[] SOS_PERMISSIONS = {
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.CALL_PHONE
+    };
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        registerPlugin(EmergencyContactPlugin.class);
         
         // Check and request location permissions on app start
         checkAndRequestLocationPermissions();
+
+        checkAndRequestSOSPermissions();
     }
 
     @Override
@@ -40,6 +50,57 @@ public class MainActivity extends BridgeActivity {
         // Double-check permissions when app comes to foreground
         if (!hasLocationPermissions()) {
             checkAndRequestLocationPermissions();
+        }
+
+        if (!hasSOSPermissions()) {
+            checkAndRequestSOSPermissions();
+        } else {
+            startPowerButtonService();
+        }
+    }
+
+    private boolean hasSOSPermissions() {
+        for (String permission : SOS_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+    }
+
+    private void checkAndRequestSOSPermissions() {
+        ArrayList<String> permissionsToRequest = new ArrayList<>();
+
+        for (String permission : SOS_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(permission);
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+
+        if (!permissionsToRequest.isEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toArray(new String[0]), SOS_PERMISSION_REQUEST_CODE);
+        } else {
+            startPowerButtonService();
+        }
+    }
+
+    private void startPowerButtonService() {
+        Intent serviceIntent = new Intent(this, PowerButtonService.class);
+        serviceIntent.setAction(PowerButtonService.ACTION_START);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(this, serviceIntent);
+        } else {
+            startService(serviceIntent);
         }
     }
 
@@ -164,6 +225,22 @@ public class MainActivity extends BridgeActivity {
                         .show();
             } else {
                 Toast.makeText(this, "Location permission is required for SOS functionality", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        if (requestCode == SOS_PERMISSION_REQUEST_CODE) {
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (allGranted) {
+                startPowerButtonService();
+            } else {
+                Toast.makeText(this, "SMS/Call permissions are required for Power Button SOS", Toast.LENGTH_LONG).show();
             }
         }
     }
